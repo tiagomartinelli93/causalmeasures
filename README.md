@@ -36,7 +36,7 @@ CE = CausalEffect(data, ['x2'], ['x3'], confounders=['x1'], variable_types=types
 You can see the causal effect of intervention, `P(x3|do(x2))` using the measured causal effect in `confounders`,
 ```python
 >>> x = pd.DataFrame({'x2' : [0.], 'x3' : [0.]})
->>> print(CE.expected_value(x))
+>>> print(CE.ATE(x))
 0.268915603296
 ```
 
