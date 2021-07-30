@@ -12,10 +12,9 @@ class CausalEffect(object):
         back-door adjustment, P(Y|do(X)) = Sum( P(Y|X,Z)P(Z), Z) 
         for some admissable set of control variables, Z.  First we 
         calculate the conditional density P(Y|X,Z), then the density
-        P(Z).  We find the support of Z so we can properly sum over
-        it later.  variable_types are a dictionary with the column name
-        pointing to an element of set(['o', 'u', 'c']), for 'ordered',
-        'unordered discrete', or 'continuous'.
+        P(Z).  We find the support of Y so we can properly get expctation over 
+        types are a dictionary with the column name pointing to an element of 
+        set(['o', 'u', 'c']), for 'ordered', 'unordered discrete', or 'continuous'.
         """
         conditionals = confounders + causes 
         self.causes = causes
