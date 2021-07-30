@@ -31,7 +31,6 @@ from causalestimation import CausalEffect
 
 x = pd.DataFrame({'x2' : [0.], 'x3' : [0.]})
 CE = CausalEffect(data, ['x2'], ['x3'], confounders=['x1'], variable_types=types)
-CE
 ```
 
 You can see the causal effect of intervention, `P(x3|do(x2))` using the measured causal effect in `confounders`,
