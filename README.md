@@ -31,18 +31,24 @@ from causalestimation import CausalEffect
 CE = CausalEffect(data, ['X1'], ['Y'], confounders=['Z'], variable_types=types)
 ```
 
-You can see the averaged treatment/causal effect (ATE) of intervention, `P(Y|do(x1))` using the measured causal effect in `confounders`,
+You can see the averaged treatment/causal effect (ATE) of intervention, `E_{x1}[P(Y|do(x1))]` using the measured causal effect with `confounders=['Z']`,
 ```python
 >>> x1 = np.mean(CE.support['X1'])
 >>> x = pd.DataFrame({'X1' : [x1]})
 >>> print(CE.ATE(x))
 ```
 
-For an informational perspective you can type, `info=True` to get the local flow [1,2] in the presence of `confounders`,
+For an informational perspective you can type, `info=True` to get the local flow [2] from `x1` to the effect `['Y']` in the presence of `['Z']`,
 ```python
 
 CE = CausalEffect(data, ['X1'], ['Y'], confounders=['Z'], variable_types=types, info=True)
-CE.local_information_flow(x)
+CE.local_flow(x)
+```
+And, the averaged local flow (or information flow [1]) from `[X1]` to `['Y']` is given by:
+```python
+
+args = CE.causes
+CE.local_flow(args)
 ```
 
 This repository is in its first steps waiting for publishing the whole analysis with data.\
