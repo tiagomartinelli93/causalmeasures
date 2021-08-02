@@ -10,39 +10,36 @@ import pandas as pd
 #Generating some toy causal model with confounders 
 
 reps = 2000
-x1 = np.random.normal(size=reps)
-x2 = x1 + np.random.normal(size=reps)
-x3 = x1 + np.random.normal(size=reps)
-x4 = x2 + x3 + np.random.normal(size=reps)
-x5 = x4 + np.random.normal(size=reps)
+Z = np.random.normal(size=reps)
+X1 = Z + np.random.normal(size=reps)
+X2 = Z + np.random.normal(size=reps)
+Y = X1 + X2 + np.random.normal(size=reps)
 
 # load the data into a dataframe:
-data = pd.DataFrame({'x1' : x1, 'x2' : x2, 'x3' : x3, 'x4' : x4, 'x5' : x5})
+data = pd.DataFrame({'Z' : Z, 'X1' : X1, 'X2' : X2, 'Y' : Y})
 
 # define the variable types: 'c' is 'continuous'.  The variables defined here
 # are the ones the search is performed over  -- NOT all the variables defined
 # in the data frame.
 
-types = {'x1' : 'c', 'x2' : 'c', 'x3' : 'c', 'x4' : 'c', 'x5' : 'c'}
+types = {'Z' : 'c', 'X1' : 'c', 'X2' : 'c', 'Y' : 'c'}
 
 # Estimating effect
 
 from causalestimation import CausalEffect
 
-x = pd.DataFrame({'x2' : [0.], 'x3' : [0.]})
-CE = CausalEffect(data, ['x2'], ['x3'], confounders=['x1'], variable_types=types)
+CE = CausalEffect(data, ['X1'], ['Y'], confounders=['Z'], variable_types=types)
 ```
 
-You can see the averaged treatment/causal effect (ATE) of intervention, `P(x3|do(x2))` using the measured causal effect in `confounders`,
+You can see the averaged treatment/causal effect (ATE) of intervention, `P(Y|do(x1))` using the measured causal effect in `confounders`,
 ```python
->>> x = pd.DataFrame({'x2' : [0.], 'x3' : [0.]})
+x1 = np.mean(CE.support['X1'])
+>>> x = pd.DataFrame({'X1' : [x1]})
 >>> print(CE.ATE(x))
-0.268915603296
 ```
 
 For an informational perspective you can type, `info=True` to get the local flow [1,2] in the presence of `confounders`,
 ```python
->>> x = pd.DataFrame({'x' : [0.]})
 >>> CE.local_information_flow(x)
 ```
 
