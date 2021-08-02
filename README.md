@@ -33,14 +33,16 @@ CE = CausalEffect(data, ['X1'], ['Y'], confounders=['Z'], variable_types=types)
 
 You can see the averaged treatment/causal effect (ATE) of intervention, `P(Y|do(x1))` using the measured causal effect in `confounders`,
 ```python
-x1 = np.mean(CE.support['X1'])
+>>> x1 = np.mean(CE.support['X1'])
 >>> x = pd.DataFrame({'X1' : [x1]})
 >>> print(CE.ATE(x))
 ```
 
 For an informational perspective you can type, `info=True` to get the local flow [1,2] in the presence of `confounders`,
 ```python
->>> CE.local_information_flow(x)
+
+CE = CausalEffect(data, ['X1'], ['Y'], confounders=['Z'], variable_types=types, info=True)
+CE.local_information_flow(x)
 ```
 
 This repository is in its first steps waiting for publishing the whole analysis with data.\
