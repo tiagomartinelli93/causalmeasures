@@ -245,5 +245,21 @@ class CausalEffect(object):
         """         
         Ysupp = [self.support[variable] for variable in self.effects]
         
-        return - nquad(self.integration_flow, Ysupp, tuple(args.values[0]))[0] 
+        return - nquad(self.integration_flow, Ysupp, tuple(args.values[0]))[0]
+    
+    def flow(self, args):
+        
+        args = self.causes
+        
+        if self.discrete_X:
+            Xsupp = [range(*(int(self.support[var][0]), int(self.support[var][1])+1)) for var in self.discrete_X]
+            IF=0.
+            for x in product(*Xsupp):
+                x_pred = pd.DataFrame({k : [v] for k, v in zip(args, x)})
+                x_pred = x_pred[self.causes]
+                IF += self.kX.pdf(data_predict=x_pred[x]) * self.local_flow(x)               
+            return IF
+        
+        Xsupp = [self.support[variable] for variable in args]
+        return - nquad(self.local_flow, Xsupp)[0]
         
