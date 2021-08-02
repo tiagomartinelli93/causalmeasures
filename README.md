@@ -48,7 +48,7 @@ And, the averaged local flow (or information flow [1]) from `[X1]` to `['Y']` is
 ```python
 
 args = CE.causes
-CE.local_flow(args)
+CE.flow(args)
 ```
 
 This repository is in its first steps waiting for publishing the whole analysis with data.\
