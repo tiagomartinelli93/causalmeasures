@@ -241,7 +241,7 @@ class CausalEffect(object):
         
         -----------------------------
         [1] https://doi.org/10.1142/S0219525908001465
-        [2] 10.3390/e22080854   
+        [2] https://doi.org/10.3390/e22080854   
         """         
         Ysupp = [self.support[variable] for variable in self.effects]
         
