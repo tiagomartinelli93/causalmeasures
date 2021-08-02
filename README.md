@@ -33,11 +33,19 @@ x = pd.DataFrame({'x2' : [0.], 'x3' : [0.]})
 CE = CausalEffect(data, ['x2'], ['x3'], confounders=['x1'], variable_types=types)
 ```
 
-You can see the causal effect of intervention, `P(x3|do(x2))` using the measured causal effect in `confounders`,
+You can see the averaged treatment/causal effect (ATE) of intervention, `P(x3|do(x2))` using the measured causal effect in `confounders`,
 ```python
 >>> x = pd.DataFrame({'x2' : [0.], 'x3' : [0.]})
 >>> print(CE.ATE(x))
 0.268915603296
 ```
 
-This repository is in its first steps waiting for publishing the whole analysis with data. We adapted some function nonparametric estimation from https://github.com/akelleh/causality
+For an informational perspective you can type, `info=True` to get the local flow [1,2] in the presence of `confounders`,
+```python
+>>> x = pd.DataFrame({'x' : [0.]})
+>>> CE.local_information_flow(x)
+```
+
+This repository is in its first steps waiting for publishing the whole analysis with data. 
+[1] https://doi.org/10.1142/S0219525908001465
+[2] 10.3390/e22080854
