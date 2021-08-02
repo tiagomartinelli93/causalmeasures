@@ -44,7 +44,7 @@ For an informational perspective you can type, `info=True` to get the local flow
 CE = CausalEffect(data, ['X1'], ['Y'], confounders=['Z'], variable_types=types, info=True)
 CE.local_flow(x)
 ```
-And, the averaged local flow (or information flow [1]) from `[X1]` to `['Y']` is given by:
+And, the averaged local flow (or information flow [1]) from `['X1']` to `['Y']` is given by:
 ```python
 
 args = CE.causes
