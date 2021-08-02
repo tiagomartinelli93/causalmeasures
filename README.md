@@ -48,4 +48,4 @@ For an informational perspective you can type, `info=True` to get the local flow
 
 This repository is in its first steps waiting for publishing the whole analysis with data.\
 [1] https://doi.org/10.1142/S0219525908001465 \
-[2] 10.3390/e22080854
+[2] https://doi.org/10.3390/e22080854
