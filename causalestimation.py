@@ -22,6 +22,7 @@ class CausalEffect(object):
         self.causes = causes
         self.effects = effects
         self.confounders = confounders
+        
         self.conditionals = conditionals
 
         if len(X) > 300 or max(len(causes+confounders),len(effects+confounders)) >= 3:
@@ -55,12 +56,11 @@ class CausalEffect(object):
         
         self.discrete_variables = [variable for variable, var_type in self.variable_types.items() if var_type in ['o', 'u']]
         self.continuous_variables = [variable for variable, var_type in self.variable_types.items() if var_type == 'c']     
+        self.discrete_Z = list(set(self.discrete_variables).intersection(set(confounders)))
+        self.continuous_Z = list(set(self.continuous_variables).intersection(set(confounders))) 
             
         if confounders:       
-            Z_types = [variable_types[var] for var in confounders]
-            self.discrete_Z = list(set(self.discrete_variables).intersection(set(confounders)))
-            self.continuous_Z = list(set(self.continuous_variables).intersection(set(confounders))) 
-            
+            Z_types = [variable_types[var] for var in confounders]   
             self.kZ = KDEMultivariate(X[confounders], 
                                   var_type=''.join(Z_types),
                                   bw=bw,
@@ -159,7 +159,6 @@ class CausalEffect(object):
             return sum(pYdoX)
         
         elif self.continuous_Z:
-            
             Zsupp = [self.support[var] for var in self.continuous_Z]
             def func(*args):
                 data = pd.DataFrame({k : [v] for k, v in zip(self.confounders + self.causes + self.effects, args)})
@@ -172,13 +171,15 @@ class CausalEffect(object):
             return pYdoX 
         
         else:
+            #print('no back-door adjustment')
             return self.kYgXZ.pdf(endog_predict=args[self.effects], exog_predict=args[self.causes])    
-
         
     def integration_flow(self, *args):
         
         data = pd.DataFrame({k : [v] for k, v in zip(self.effects + self.causes, args)})
+        #print('data', data)
         p = self.pdf(data) + 1e-12
+        #print('p', p)
         
         if self.discrete_X:
             Xsupp = [range(*(int(self.support[var][0]), int(self.support[var][1])+1)) for var in self.discrete_X]
@@ -187,23 +188,24 @@ class CausalEffect(object):
                 x_pred = pd.DataFrame({k : [v] for k, v in zip(self.effects + self.causes, args[:-1]+x)})
                 x_pred = x_pred[self.effects + self.causes]
                 q += self.kX.pdf(data_predict=x_pred[self.causes]) * self.pdf(x_pred)
-            q += 1e-12                          
+            q += 1e-12
+            #print('q', q)
             return - p * np.log(p/q)
         
         else:
             Xsupp = [CE.support[variable] for variable in CE.causes]
             q = nquad(self.pdf, Xsupp, args[-1])[0] 
             q +=1e-12       
-        return p * np.log(p/q)
+            return p * np.log(p/q)
     
     
     def local_flow(self, x):
         """
         Measure the local flow of information from x -> y 
         
-        ----------------------------
+        -----------------------------
         INFORMATION FLOW        
-                
+        -----------------------------                
         The calculation of flow can be broken down into 2 steps. First we generate
         a joint distribution *under interventions*, then we calculate simple the 
         conditional mutual information (CMI) over this distribution. This is described 
@@ -215,7 +217,7 @@ class CausalEffect(object):
         
                     p_flow(x, y) := p(x)p(y|do(x))
             
-        ... then we can simply measure the CMI:
+        then we can simply measure the CMI:
         
                     I(X -> Y) = I_{pflow}(X ; Y)
         
@@ -224,7 +226,7 @@ class CausalEffect(object):
         
         -----------------------------
         LOCAL FLOW  
-        
+        -----------------------------      
         Local flow was proposed in Ref.[2] to formalize the notion of specific causal effects
         from an information theoretic perspective.
 
@@ -238,15 +240,18 @@ class CausalEffect(object):
         
         the local flow answers the following question: "How much local information would we expect 
         performing the intervention do(X = x) to change the course of nature for Y ?"            
-        
-        -----------------------------
+        -----------------------------    
+
         [1] https://doi.org/10.1142/S0219525908001465
         [2] https://doi.org/10.3390/e22080854   
         """         
-        Ysupp = [self.support[variable] for variable in self.effects]
         
-        return - nquad(self.integration_flow, Ysupp, tuple(args.values[0]))[0]
-    
+        Ysupp = [self.support[variable] for variable in self.effects]
+        x = x[self.causes]
+        print('x', x)
+        print('args', tuple(x.values[0]))
+        return - nquad(self.integration_flow, Ysupp, tuple(x.values[0]))[0] 
+ 
     def flow(self, args):
         
         args = self.causes
