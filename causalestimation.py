@@ -6,7 +6,7 @@ from scipy import stats
 import numpy as np
 
 class CausalEffect(object):
-    def __init__(self, X, causes, effects, confounders=[], variable_types=None, info=None):
+    def __init__(self, X, causes, effects, confounders=[], variable_types, info=None):
         """
         We want to calculate the causal effect of X on Y through
         back-door adjustment, P(Y|do(X)) = Sum( P(Y|X,Z)P(Z), Z) 
@@ -18,6 +18,7 @@ class CausalEffect(object):
         'unordered discrete', or 'continuous'. info=True gives the causal effect
         from an informational perspective see local_flow function for detals
         """
+        
         conditionals = confounders + causes 
         self.causes = causes
         self.effects = effects
@@ -25,18 +26,14 @@ class CausalEffect(object):
         
         self.conditionals = conditionals
 
-        if len(X) > 300 or max(len(causes+confounders),len(effects+confounders)) >= 3:
+        if len(X) > 300 or max(len(causes + confounders),len(effects + confounders)) >= 3:
             self.defaults=EstimatorSettings(n_jobs=4, efficient=True)
         else:
             self.defaults=EstimatorSettings(n_jobs=-1, efficient=False)
         
-        if variable_types:
-            self.variable_types = variable_types
-            dep_type      = [variable_types[var] for var in effects]
-            indep_type    = [variable_types[var] for var in conditionals]
-
-        else:
-            self.variable_types = self.__infer_variable_types(X)
+        self.variable_types = variable_types
+        dep_type      = [variable_types[var] for var in effects]
+        indep_type    = [variable_types[var] for var in conditionals]
 
         if 'c' not in variable_types.values():
             bw = 'cv_ml'
@@ -75,7 +72,6 @@ class CausalEffect(object):
                                   var_type=''.join(X_types),
                                   bw=bw,
                                   defaults=EstimatorSettings(n_jobs=4))
-
  
     def get_support(self, X):
         """
